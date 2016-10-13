@@ -20,4 +20,5 @@ public class Animals {
     public void setTitle(String name) {
         this.title = name;
     }
+
 }

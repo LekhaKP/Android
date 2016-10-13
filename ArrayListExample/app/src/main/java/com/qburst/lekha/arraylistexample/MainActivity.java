@@ -32,6 +32,8 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.qburst.lekha.arraylistexample.R.id.animalList;
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView animalList;
     private List<Animals> animalsList;
     private AnimalsAdapter mAdapter;
-
+    RecyclerView.LayoutManager mLayoutManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,7 +127,13 @@ public class MainActivity extends AppCompatActivity {
         animalsList.add(animals);
         animals = new Animals("GOAT");
         animalsList.add(animals);
+
         mAdapter.notifyDataSetChanged();
+        Collections.sort(animalsList, new Comparator<Animals>() {
+            public int compare(Animals v1, Animals v2) {
+                return v1.getTitle().compareTo(v2.getTitle());
+            }
+        });
 
     }
     @Override
@@ -181,10 +189,19 @@ public class MainActivity extends AppCompatActivity {
 
             public void onClick(View v) {
 
-                Animals animals = new Animals(animal_name.getText().toString());
+                final Animals animals = new Animals(animal_name.getText().toString());
+
+
                 animalsList.add(animals);
                 mAdapter.notifyItemInserted(animalsList.size() - 1);
+                Collections.sort(animalsList, new Comparator<Animals>() {
+                    public int compare(Animals animals1, Animals animals2) {
+                        return animals1.getTitle().compareTo(animals2.getTitle());
+                    }
+                });
 
+                mLayoutManager = new LinearLayoutManager(getApplicationContext());
+                animalList.setLayoutManager(mLayoutManager);
                 popup.dismiss();
 
             }
