@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:gravity="center"
+
+    android:layout_height="match_parent"
+    android:id="@+id/reminder_list_id"
+    tools:context="com.qburst.lekha.reminder.ReminderList">
+    <!--android:background="#5ba4e5"-->
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="40px"
+        android:textColor="#ffffff"
+        android:layout_gravity="center"
+        android:id="@+id/AndroidOs"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="#ffffff"
+        android:textSize="30px"
+        android:id="@+id/Version"/>
+
+</LinearLayout>

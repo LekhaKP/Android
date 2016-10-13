@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.qburst.lekha.reminder.MainActivity">
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+        <!--<fragment
+            android:layout_weight=".40"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:name="android.app.ListFragment"
+            android:id="@+id/fragment"
+            class="com.qburst.lekha.reminder.ReminderType"/>
+    &lt;!&ndash;</FrameLayout>&ndash;&gt;
+    <fragment
+        android:layout_weight=".60"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:name="android.support.v4.app.DialogFragment"
+        android:id="@+id/fragment2"
+        class="com.qburst.lekha.reminder.ReminderList"/>-->
+</LinearLayout>
