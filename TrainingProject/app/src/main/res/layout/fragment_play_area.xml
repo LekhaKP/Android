@@ -1,0 +1,49 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.qburst.lekha.trainingproject.PlayArea"
+    android:background="#383838">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/image_puzzle"
+            android:scaleType="fitXY"
+            />
+        <!--<com.qburst.lekha.trainingproject.MatrixView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/matrix_layout" />-->
+    </FrameLayout>
+
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text=""
+        android:textColor="#ffff"
+        android:ems="10"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/person_name" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:padding="5dp"
+        app:srcCompat="@android:drawable/ic_btn_speak_now"
+        android:id="@+id/speak_button"
+        android:clickable="true"/>
+
+
+</RelativeLayout>
