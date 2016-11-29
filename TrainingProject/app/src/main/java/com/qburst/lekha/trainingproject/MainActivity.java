@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         SuccessDatabase db = new SuccessDatabase(this);
         getApplicationContext().deleteDatabase("SuccessHandler");
-        /*if(db.getCount() == 0) {
+        if(db.getCount() == 0) {
             Log.d("Insert: ", "Inserting ..");
             TypedArray imgs = getResources().obtainTypedArray(R.array.easy_image_ids);
             int i =0;
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                 init = i;
             }
 
-        }*/
+        }
         if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this,

@@ -670,8 +670,8 @@ public class PlayArea extends Fragment {
                 if (trials == 3) {
                     parts.add(rectanglePart);
                 }
-                myRectPaint.setStyle(Paint.Style.STROKE);
-                tempCanvas.drawRect(rectanglePart, myRectPaint);
+                /*myRectPaint.setStyle(Paint.Style.STROKE);
+                tempCanvas.drawRect(rectanglePart, myRectPaint);*/
                 partLeftx = partRightx;
             }
             partTopy = partBottomy;
@@ -684,8 +684,16 @@ public class PlayArea extends Fragment {
         if(cellLeftTop.x < rightBottom.x && cellRightBottom.x > leftTop.x && cellRightBottom.y > leftTop.y && cellLeftTop.y < rightBottom.y) {
             int widthOfOverlap = (int) (Math.min(cellRightBottom.x,rightBottom.x) - Math.max(cellLeftTop.x,leftTop.x));
             int heightOfOverlap = (int) (Math.min(cellRightBottom.y,rightBottom.y) - Math.max(cellLeftTop.y, leftTop.y));
-            if (3*maxArea/10 < (widthOfOverlap * heightOfOverlap)) {
-                Log.d(TAG, "doOverlap: maxArea: "+maxArea+" maxArea(30%): "+3*maxArea/10+" thisArea: "+(widthOfOverlap * heightOfOverlap) );
+            int percent;
+            if (state == 1) {
+                percent = 10/100;
+            }else if (state == 2) {
+                percent = 25/100;
+            } else {
+                percent = 10/100;
+            }
+            if ((maxArea*percent) < (widthOfOverlap * heightOfOverlap)) {
+                Log.d(TAG, "doOverlap: maxArea: "+maxArea+" maxArea(10%): "+(maxArea*percent)+" thisArea: "+(widthOfOverlap * heightOfOverlap) );
                 return true;
             } else {
                 return false;
@@ -784,7 +792,8 @@ public class PlayArea extends Fragment {
                 cellRightBottom.y = cell.bottom;
 //                myRectPaint.setStyle(Paint.Style.STROKE);
 //                tempCanvas.drawRect(landmarksObtained.get(next).getLeftTop().x, landmarksObtained.get(next).getLeftTop().y, landmarksObtained.get(next).getRightBottom().x, landmarksObtained.get(next).getRightBottom().y, myRectPaint);
-                maxArea = landmarksObtained.get(next).getArea();
+//                maxArea = landmarksObtained.get(next).getArea();
+                maxArea = (int) ((cellRightBottom.x - cellLeftTop.x)*(cellRightBottom.y - cellLeftTop.y));
                 if (doOverlap(landmarksObtained.get(next).getLeftTop(), landmarksObtained.get(next).getRightBottom(), cellLeftTop, cellRightBottom)) {
                     if (isFilled[cellIndex] == 1) {
                         isFilled[cellIndex] = 0;
@@ -793,8 +802,8 @@ public class PlayArea extends Fragment {
                     }
 
                 }
-                myRectPaint.setStyle(Paint.Style.STROKE);
-                tempCanvas.drawRect(cell, myRectPaint);
+                /*myRectPaint.setStyle(Paint.Style.STROKE);
+                tempCanvas.drawRect(cell, myRectPaint);*/
                 cellIndex++;
             }
             next++;

@@ -91,7 +91,7 @@ public class SuccessDatabase extends SQLiteOpenHelper {
     }
 
     public int getUnFinishedCount (int level){
-        String countQuery = "SELECT  * FROM " + TABLE_LEVEL+" WHERE "+LEVEL_ID+" = "+level;
+        String countQuery = "SELECT  * FROM " + TABLE_LEVEL+" WHERE "+SUCCESS_STATUS_ID+" = 0 AND "+LEVEL_ID+" = "+level;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
         // return count
