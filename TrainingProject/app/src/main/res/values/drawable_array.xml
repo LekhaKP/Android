@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <array name="image_ids">
+    <array name="easy_image_ids">
         <item>@drawable/aiswarya_roy</item>
         <item>@drawable/anil_kapoor</item>
         <item>@drawable/dharmendra</item>
         <item>@drawable/madhuri_dixit</item>
         <item>@drawable/raj_kapoor</item>
         <item>@drawable/shah_rukh_khan</item>
+        <item>@drawable/amitabh_bachchan</item>
+        <item>@drawable/dileep</item>
+        <item>@drawable/vijay</item>
+        <item>@drawable/kamal_hassan</item>
+        <item>@drawable/ajith</item>
+        <item>@drawable/manju_warrier</item>
+        <item>@drawable/deepika_padukone</item>
+        <item>@drawable/nivin_pauly</item>
+        <item>@drawable/arjun_kapoor</item>
+
     </array>
 </resources>

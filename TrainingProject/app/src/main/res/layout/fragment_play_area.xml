@@ -4,46 +4,86 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.qburst.lekha.trainingproject.PlayArea"
-    android:background="#383838">
+    android:background="#361C4B">
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:id="@+id/puzzle_area"
+        android:background="@color/colorPrimary">
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/image_puzzle"
             android:scaleType="fitXY"
+            android:adjustViewBounds="true"
+
             />
-        <!--<com.qburst.lekha.trainingproject.MatrixView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/activity_horizontal_margin"
-            android:layout_centerHorizontal="true"
-            android:id="@+id/matrix_layout" />-->
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/revealing_progress"/>
+    </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dialogArea"
+        android:layout_below="@+id/puzzle_area"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_centerHorizontal="true">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/face_1stchance"
+            android:id="@+id/faces_view" />
+
+        <TextView
+            android:text="Guess the celebrity !"
+            android:textColor="@android:color/black"
+            android:textSize="15dp"
+            android:textAlignment="center"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dialog_view"
+            android:background="@mipmap/speechbubble"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/faces_view"/>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/speech_layout"
+        android:layout_below="@+id/dialogArea"
+        android:layout_centerHorizontal="true">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/speak_button"
+            android:clickable="true"
+            android:scaleType="fitXY"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_gravity="center_horizontal"
+            />
+        <com.qburst.lekha.trainingproject.Circle
+            android:id="@+id/circle"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            app:circleColor="@color/timer_circle"/>
     </FrameLayout>
 
 
-    <EditText
+    <TextView
+        android:text="chances"
+        android:textColor="@android:color/white"
+        android:textSize="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:text=""
-        android:textColor="#ffff"
-        android:ems="10"
-        android:padding="@dimen/activity_horizontal_margin"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:id="@+id/person_name" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:padding="5dp"
-        app:srcCompat="@android:drawable/ic_btn_speak_now"
-        android:id="@+id/speak_button"
-        android:clickable="true"/>
+        android:id="@+id/chances_text_view"
+        android:layout_below="@+id/speech_layout"
+        android:layout_centerHorizontal="true"/>
 
 
 </RelativeLayout>

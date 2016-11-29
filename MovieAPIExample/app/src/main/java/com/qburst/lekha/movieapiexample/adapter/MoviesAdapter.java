@@ -2,15 +2,21 @@ package com.qburst.lekha.movieapiexample.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.qburst.lekha.movieapiexample.MainActivity;
 import com.qburst.lekha.movieapiexample.R;
 import com.qburst.lekha.movieapiexample.model.Movie;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
@@ -18,9 +24,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     private List<Movie> movies;
     private int rowLayout;
     private Context context;
+    private int position;
+    private LayoutInflater inflater;
 
     public static class MovieViewHolder extends RecyclerView.ViewHolder {
         LinearLayout moviesLayout;
+
         ImageView moviePoster;
         TextView movieTitle;
         TextView data;
@@ -42,6 +51,31 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         this.movies = movies;
         this.rowLayout = rowLayout;
         this.context = context;
+    }
+
+    public MoviesAdapter(Context context, List<Movie> list) {
+        this.context = context;
+        position = 0;
+        inflater = LayoutInflater.from(context);
+    }
+
+    public void setData(List<Movie> data) {
+        int currSize = movies.size();
+        this.movies.addAll(data);
+        Log.d("", "setData: "+getItemCount());
+        notifyItemRangeInserted(currSize, currSize-movies.size());
+    }
+
+    public void clear() {
+
+        this.movies.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addAllOnRefresh(List<Movie> list) {
+
+        this.movies.addAll(list);
+
     }
 
     @Override

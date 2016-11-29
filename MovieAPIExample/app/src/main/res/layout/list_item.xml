@@ -61,7 +61,6 @@
             android:src="@drawable/star"
             android:tint="@color/colorAccent" />
 
-
         <TextView
             android:id="@+id/rating"
             android:layout_width="wrap_content"

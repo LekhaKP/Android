@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="score_one">01</string>
+    <string name="score_two">02</string>
+    <string name="score_four">04</string>
+    <string name="score_five">05</string>
+    <string name="dialog_one">This is your last chance !</string>
+    <string name="dialog_two">Try Again !</string>
+    <string name="dialog_three">Guess the celebrity !</string>
+    <string name="face_one">face_1stchance</string>
+    <string name="face_two">face_2ndchance</string>
+    <string name="face_three">face_3rdchance</string>
+    <string name="mike_three">microphone_3</string>
+    <string name="mike_two">microphone_2</string>
+    <string name="mike_one">microphone_1</string>
+    <string name="score_zero">00</string>
+</resources>

@@ -1,288 +1,427 @@
 package com.qburst.lekha.cameraexample;
 
-import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.hardware.Camera;
-import android.support.v7.app.AppCompatActivity;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.util.FloatProperty;
+import android.util.Log;
+import android.view.Display;
+import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceHolder;
-import android.widget.ImageView;
-
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.Toast;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback, Camera.AutoFocusCallback {
+import static android.graphics.PixelFormat.TRANSLUCENT;
 
-    private static final int DISPLAY_ORIENTATION = 90;
-    private static final float FOCUS_AREA_SIZE = 75f;
-    private static final float STROKE_WIDTH = 5f;
-    private static final float FOCUS_AREA_FULL_SIZE = 2000f;
-    private static final int ACCURACY = 3;
+public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback{
 
-    private Activity activity;
+    private boolean isPreviewRunning = false;
+    private boolean mExternalStorageAvailable = false;
+    private boolean mExternalStorageWriteable = false;
+    private boolean drawOK = false;
+    private int front = 0;
+    private Camera.Size bestSize = null;
+    private SurfaceView surfaceView;
+    private SurfaceView topSurfaceView;
+    private SurfaceHolder surfaceHolder;
+    private SurfaceHolder topSurfaceHolder;
     private Camera camera;
-
-    private ImageView canvasFrame;
-    private Canvas canvas;
+    private Camera.AutoFocusCallback myAutoFocusCallback;
+    private Camera.PictureCallback jpegCallback;
     private Paint paint;
-    private FocusMode focusMode = FocusMode.AUTO;
+    private Canvas canvas;
+    private Button capture;
+    private Bitmap bitmap;
+    private boolean meteringAreaSupported;
+    private File outputFile;
+    private Button chooseCamera;
 
-    private boolean hasAutoFocus;
-    private boolean focusing;
-    private boolean focused;
-    private float focusKoefW;
-    private float focusKoefH;
-    private float prevScaleFactor;
-    private FocusCallback focusCallback;
-    private Rect tapArea;
-    private KeyEventsListener keyEventsListener;
-
-    public MainActivity(Activity activity, Camera camera, ImageView canvasFrame, FocusCallback focusCallback, KeyEventsListener keyEventsListener) {
-        this.activity = activity;
-        this.camera = camera;
-        this.canvasFrame = canvasFrame;
-        this.focusCallback = focusCallback;
-        this.keyEventsListener = keyEventsListener;
-
-        List<String> supportedFocusModes = camera.getParameters().getSupportedFocusModes();
-        hasAutoFocus = supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO);
-
-        initHolder();
-    }
-
-    private void initHolder() {
-        // Install a SurfaceHolder.Callback so we get notified when the
-        // underlying surface is created and destroyed.
-        SurfaceHolder holder = getHolder();
-        if (holder != null) {
-            holder.addCallback(this);
-            holder.setKeepScreenOn(true);
-        }
-    }
-
-    private void initFocusDrawingTools(int width, int height) {
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
-        canvas = new Canvas(bitmap);
-        paint = new Paint();
-        paint.setColor(Color.GREEN);
-        paint.setStrokeWidth(STROKE_WIDTH);
-        canvasFrame.setImageBitmap(bitmap);
-    }
-
-    public void surfaceCreated(SurfaceHolder holder) {
-        Timber.d("surfaceCreated");
-        // The Surface has been created, now tell the camera where to draw the preview.
-        startPreview(holder);
-    }
-
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        Timber.d("surfaceDestroyed");
-        stopPreview();
-    }
-
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Timber.d("surfaceChanged(%1d, %2d)", width, height);
-        // If your preview can change or rotate, take care of those events here.
-        // Make sure to stop the preview before resizing or reformatting it.
-        initFocusDrawingTools(width, height);
-        initFocusKoefs(width, height);
-        if (holder.getSurface() == null) {
-            // preview surface does not exist
-            return;
-        }
-        stopPreview();
-
-        startPreview(holder);
-        setOnTouchListener(new CameraTouchListener());
-    }
-
-    private void initFocusKoefs(float width, float height) {
-        focusKoefW = width / FOCUS_AREA_FULL_SIZE;
-        focusKoefH = height / FOCUS_AREA_FULL_SIZE;
-    }
-
-    public void setFocusMode(FocusMode focusMode) {
-        clearCameraFocus();
-        this.focusMode = focusMode;
-        focusing = false;
-        setOnTouchListener(new CameraTouchListener());
-    }
-
-    private void startFocusing() {
-        if (!focusing) {
-            focused = false;
-            focusing = true;
-            if (focusMode == FocusMode.AUTO || (focusMode == FocusMode.TOUCH && tapArea == null)) {
-                drawFocusFrame(createAutoFocusRect());
-            }
-            camera.autoFocus(this);
-        }
-    }
-
-    public void takePicture() {
-        if (hasAutoFocus) {
-            if (focusMode == FocusMode.AUTO) {
-                startFocusing();
-            }
-            if (focusMode == FocusMode.TOUCH) {
-                if (focused && tapArea != null) {
-                    focused();
-                } else {
-                    startFocusing();
-                }
-            }
-        } else {
-            focused();
-        }
-    }
-
-    private Rect createAutoFocusRect() {
-        int left = (int) (getWidth() / 2 - FOCUS_AREA_SIZE);
-        int right = (int) (getWidth() / 2 + FOCUS_AREA_SIZE);
-        int top = (int) (getHeight() / 2 - FOCUS_AREA_SIZE);
-        int bottom = (int) (getHeight() / 2 + FOCUS_AREA_SIZE);
-        return new Rect(left, top, right, bottom);
-    }
-
-    private void startPreview(SurfaceHolder holder) {
-        Timber.d("startPreview");
-        try {
-            camera.setPreviewDisplay(holder);
-            camera.setDisplayOrientation(DISPLAY_ORIENTATION);
-            Camera.Parameters parameters = camera.getParameters();
-            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-            camera.setParameters(parameters);
-            camera.startPreview();
-        } catch (Exception e) {
-            Timber.e(e, "Error starting camera preview: " + e.getMessage());
-        }
-    }
-
-    private void stopPreview() {
-        Timber.d("stopPreview");
-        try {
-            camera.stopPreview();
-        } catch (Exception e) {
-            Timber.e(e, "Error stopping camera preview: " + e.getMessage());
-        }
-    }
-
-    private void drawFocusFrame(Rect rect) {
-        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        canvas.drawLine(rect.left, rect.top, rect.right, rect.top, paint);
-        canvas.drawLine(rect.right, rect.top, rect.right, rect.bottom, paint);
-        canvas.drawLine(rect.right, rect.bottom, rect.left, rect.bottom, paint);
-        canvas.drawLine(rect.left, rect.bottom, rect.left, rect.top, paint);
-        canvasFrame.draw(canvas);
-        canvasFrame.invalidate();
-    }
-
-    private void clearCameraFocus() {
-        if (hasAutoFocus) {
-            focused = false;
-            camera.cancelAutoFocus();
-            if (canvas != null) {
-                tapArea = null;
-                try {
-                    Camera.Parameters parameters = camera.getParameters();
-                    parameters.setFocusAreas(null);
-                    parameters.setMeteringAreas(null);
-                    camera.setParameters(parameters);
-                } catch (Exception e) {
-                    Timber.e(e, "clearCameraFocus");
-                } finally {
-                    canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                    canvasFrame.draw(canvas);
-                    canvasFrame.invalidate();
-                }
-            }
-        }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
     }
 
     @Override
-    public void onAutoFocus(boolean success, Camera camera) {
-        focusing = false;
-        focused = true;
-        if (focusMode == FocusMode.AUTO) {
-            focused();
+    public void surfaceCreated(SurfaceHolder holder) {
+        int id = getSurfaceId(holder);
+        if (id < 0) {
+            Log.w("TAG", "surfaceCreated UNKNOWN holder=" + holder);
+        } else {
+            Log.d("TAG", "surfaceCreated #" + id + " holder=" + holder);
+
         }
-        if (focusMode == FocusMode.TOUCH && tapArea == null) {
-            focused();
+            try {
+                camera = Camera.open();
+            }
+
+            catch (RuntimeException e) {
+                System.err.println(e);
+                return;
+            }
+        Camera.Parameters param;
+        param = camera.getParameters();
+        param.setPreviewFrameRate(100);
+        List<Camera.Size> sizeList = camera.getParameters().getSupportedPreviewSizes();
+        bestSize = sizeList.get(0);
+
+        for(int i = 1; i < sizeList.size(); i++){
+            if((sizeList.get(i).width * sizeList.get(i).height) >
+                    (bestSize.width * bestSize.height)){
+                bestSize = sizeList.get(i);
+            }
         }
+
+        param.setPreviewSize(bestSize.width, bestSize.height);
+        try {
+            camera.setPreviewDisplay(surfaceHolder);
+            camera.startPreview();
+        } catch (Exception e) {
+            Log.e("TAG", "init_camera: " + e);
+            return;
+        }
+
     }
 
-    private void focused() {
-        focusing = false;
-        if (focusCallback != null) {
-            focusCallback.onFocused(camera);
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        if (isPreviewRunning)
+        {
+            camera.stopPreview();
         }
+        Camera.Parameters p = camera.getParameters();
+        if (p.getMaxNumMeteringAreas() > 0) {
+            this.meteringAreaSupported = true;
+        }
+        refreshCamera();
     }
 
-    public void onPictureTaken() {
-        clearCameraFocus();
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+
     }
 
-    protected void focusOnTouch(MotionEvent event) {
-        tapArea = calculateTapArea(event.getX(), event.getY(), 1f);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startCamera();
+        setPreview();
+
+    }
+
+    private void setPreview() {
+        initializeSurface();
         Camera.Parameters parameters = camera.getParameters();
-        int maxFocusAreas = parameters.getMaxNumFocusAreas();
-        if (maxFocusAreas > 0) {
-            Camera.Area area = new Camera.Area(convert(tapArea), 100);
-            parameters.setFocusAreas(Arrays.asList(area));
+        bestSize = camera.getParameters().getPreviewSize();
+        parameters.setPreviewSize(bestSize.width, bestSize.height);
+        Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+
+        if(display.getRotation() == Surface.ROTATION_0)
+        {
+
+            camera.setDisplayOrientation(90);
         }
-        maxFocusAreas = parameters.getMaxNumMeteringAreas();
-        if (maxFocusAreas > 0) {
-            Rect rectMetering = calculateTapArea(event.getX(), event.getY(), 1.5f);
-            Camera.Area area = new Camera.Area(convert(rectMetering), 100);
-            parameters.setMeteringAreas(Arrays.asList(area));
+
+        if(display.getRotation() == Surface.ROTATION_270)
+        {
+            camera.setDisplayOrientation(180);
         }
         camera.setParameters(parameters);
-        drawFocusFrame(tapArea);
-        startFocusing();
+        previewCamera();
+        surfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                surfaceView.setFocusable(false);
+                surfaceView.setClickable(false);
+                doTouchFocus(event);
+                return true;
+            }
+        });
+
+        jpegCallback = new android.hardware.Camera.PictureCallback() {
+
+            @Override
+            public void onPictureTaken(byte[] data, Camera camera) {
+
+                storePicture(data, camera);
+            }
+        };
     }
 
-    /**
-     * Convert touch position x:y to {@link android.hardware.Camera.Area} position -1000:-1000 to 1000:1000.
-     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (camera != null) {
+            camera.release();
+            camera = null;
+        }
+    }
+
+    private int getSurfaceId(SurfaceHolder holder) {
+        if (holder.equals(surfaceView.getHolder())) {
+            return 1;
+        } else if (holder.equals(topSurfaceView.getHolder())) {
+            return 2;
+        } else {
+            return -1;
+        }
+    }
+
+    public void previewCamera()
+    {
+        try
+        {
+            camera.setPreviewDisplay(surfaceHolder);
+            camera.startPreview();
+            isPreviewRunning = true;
+        }
+        catch(Exception e)
+        {
+            Log.d("APP_CLASS", "Cannot start preview", e);
+        }
+    }
+
+    private void startCamera() {
+
+        try{
+            camera = Camera.open(front);
+        }catch(RuntimeException e){
+            Log.e("TAG", "init_camera: " + e);
+            return;
+        }
+
+        capture = (Button) findViewById(R.id.capture_button);
+        capture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    captureImage();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        chooseCamera = (Button) findViewById(R.id.choose_camera);
+        if (Camera.getNumberOfCameras() == 2) {
+
+            chooseCamera.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    camera.release();
+                    switch (front) {
+                        case 0: front=1;
+                            break;
+                        case 1:front = 0;
+                            break;
+                        default: front = 1;
+                    }
+                    camera = Camera.open(front);
+                    setPreview();
+
+
+                }
+            });
+        }
+        else {
+            chooseCamera.setVisibility(View.GONE);
+        }
+
+
+    }
+
+    private void initializeSurface() {
+
+        surfaceView = (SurfaceView) findViewById(R.id.surfaceView1);
+        surfaceHolder = surfaceView.getHolder();
+        surfaceHolder.addCallback(this);
+        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        topSurfaceView = (SurfaceView) findViewById(R.id.surfaceView2);
+        topSurfaceView.setZOrderMediaOverlay(true);
+        topSurfaceHolder = topSurfaceView.getHolder();
+        topSurfaceHolder.addCallback(this);
+        topSurfaceHolder.setFormat(TRANSLUCENT);
+
+    }
+
+    private void doTouchFocus(MotionEvent event) {
+        final Surface topSurface = topSurfaceHolder.getSurface();
+        canvas = null;
+        paint = new Paint();
+        paint.setColor(0xeed7d7d7);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(2);
+        if (camera != null) {
+
+            camera.cancelAutoFocus();
+            Rect focusRect = calculateTapArea(event.getX(), event.getY(), 1f);
+            Rect meteringRect = calculateTapArea(event.getX(), event.getY(), 1.5f);
+            List<Camera.Area> focusList = new ArrayList<Camera.Area>();
+            Camera.Parameters parameters = camera.getParameters();
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
+            focusList.add(new Camera.Area(focusRect, 1000));
+            parameters.setFocusAreas(focusList);
+            try {
+                topSurfaceView.setVisibility(View.VISIBLE);
+                canvas = topSurface.lockCanvas(focusRect);
+                canvas.drawRect(focusRect,paint);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        topSurfaceView.setVisibility(View.GONE);
+                    }
+                },300);
+            } finally {
+                topSurface.unlockCanvasAndPost(canvas);
+            }
+            if (meteringAreaSupported) {
+                focusList.remove(0);
+                focusList.add(new Camera.Area(meteringRect, 1000));
+                parameters.setMeteringAreas(focusList);
+            }
+
+            camera.autoFocus(new Camera.AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean success, Camera camera) {
+                    if (success) {
+                        camera.cancelAutoFocus();
+                        topSurfaceView.setVisibility(View.GONE);
+                        surfaceView.setFocusable(true);
+                        surfaceView.setClickable(true);
+                    }
+                }
+            });
+        }
+
+
+    }
+
+    private void storePicture(byte[] data, Camera camera) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        options.inDither = true;
+        options.inSampleSize = 5;
+        bitmap=BitmapFactory.decodeByteArray(data, 0, data.length, options);
+        Matrix m = new Matrix();
+        if (front == 0) {
+            m.postRotate(90);
+        }else {
+            m.postRotate(-90);
+        }
+
+        bitmap = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),m,true);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        Log.d("TAG", "storePicture: "+dateFormat.format(Calendar.getInstance().getTime()));
+
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            // We can read and write the media
+            mExternalStorageAvailable = mExternalStorageWriteable = true;
+        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            // We can only read the media
+            mExternalStorageAvailable = true;
+            mExternalStorageWriteable = false;
+        } else {
+            // Something else is wrong. It may be one of many other states, but all we need
+            //  to know is we can neither read nor write
+            mExternalStorageAvailable = mExternalStorageWriteable = false;
+        }
+        if (mExternalStorageAvailable && mExternalStorageWriteable) {
+            outputFile = new File(Environment.getExternalStorageDirectory(), "photo_" + dateFormat.format(Calendar.getInstance().getTime()) + ".jpeg");
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(outputFile)));
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                bitmap.recycle();
+
+                fileOutputStream.flush();
+                fileOutputStream.close();
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Toast.makeText(getApplicationContext(), "Picture Saved", Toast.LENGTH_SHORT).show();
+            refreshCamera();
+        }
+        else {
+            Toast.makeText(this, "Cannot save", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void refreshCamera() {
+        if (surfaceHolder.getSurface() == null) {
+            return;
+        }
+
+        try {
+            camera.stopPreview();
+        }
+
+        catch (Exception e) {
+        }
+
+        try {
+            camera.setPreviewDisplay(surfaceHolder);
+            camera.startPreview();
+        }
+        catch (Exception e) {
+        }
+    }
+
+    public void captureImage() throws IOException {
+        camera.takePicture(null, null, jpegCallback);
+    }
+
     private Rect calculateTapArea(float x, float y, float coefficient) {
-        int areaSize = Float.valueOf(FOCUS_AREA_SIZE * coefficient).intValue();
+        Matrix matrix = new Matrix();
+        Float focusAreaSize = 100f;
+        int areaSize = Float.valueOf(focusAreaSize * coefficient).intValue();
 
-        int left = clamp((int) x - areaSize / 2, 0, getWidth() - areaSize);
-        int top = clamp((int) y - areaSize / 2, 0, getHeight() - areaSize);
+        int left = clamp((int) x - areaSize / 2, 0, surfaceView.getWidth() - areaSize);
+        int top = clamp((int) y - areaSize / 2, 0, surfaceView.getHeight() - areaSize);
 
-        RectF rect = new RectF(left, top, left + areaSize, top + areaSize);
-        Timber.d("tap: " + rect.toShortString());
+        RectF rectF = new RectF(left, top, left + areaSize, top + areaSize);
+        matrix.mapRect(rectF);
 
-        return round(rect);
-    }
-
-    private Rect round(RectF rect) {
-        return new Rect(Math.round(rect.left), Math.round(rect.top), Math.round(rect.right), Math.round(rect.bottom));
-    }
-
-    private Rect convert(Rect rect) {
-        Rect result = new Rect();
-
-        result.top = normalize(rect.top / focusKoefH - 1000);
-        result.left = normalize(rect.left / focusKoefW - 1000);
-        result.right = normalize(rect.right / focusKoefW - 1000);
-        result.bottom = normalize(rect.bottom / focusKoefH - 1000);
-        Timber.d("convert: " + result.toShortString());
-
-        return result;
-    }
-
-    private int normalize(float value) {
-        if (value > 1000) {
-            return 1000;
-        }
-        if (value < -1000) {
-            return -1000;
-        }
-        return Math.round(value);
+        return new Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom));
     }
 
     private int clamp(int x, int min, int max) {
@@ -293,60 +432,5 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             return min;
         }
         return x;
-    }
-
-    private void scale(float scaleFactor) {
-        scaleFactor = BigDecimal.valueOf(scaleFactor).setScale(ACCURACY, BigDecimal.ROUND_HALF_UP).floatValue();
-        if (Float.compare(scaleFactor, 1.0f) == 0 || Float.compare(scaleFactor, prevScaleFactor) == 0) {
-            return;
-        }
-        if (scaleFactor > 1f) {
-            keyEventsListener.zoomIn();
-        }
-        if (scaleFactor < 1f) {
-            keyEventsListener.zoomOut();
-        }
-        prevScaleFactor = scaleFactor;
-    }
-
-    private class CameraTouchListener implements OnTouchListener {
-
-        private ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(activity, new ScaleListener());
-        private GestureDetector mTapDetector = new GestureDetector(activity, new TapListener());
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            clearCameraFocus();
-            if (event.getPointerCount() > 1) {
-                mScaleDetector.onTouchEvent(event);
-                return true;
-            }
-            if (hasAutoFocus && focusMode == FocusMode.TOUCH) {
-                mTapDetector.onTouchEvent(event);
-                return true;
-            }
-            return true;
-        }
-
-        private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-
-            @Override
-            public boolean onScale(ScaleGestureDetector detector) {
-                scale(detector.getScaleFactor());
-                return true;
-            }
-
-        }
-
-        private class TapListener extends GestureDetector.SimpleOnGestureListener {
-
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent event) {
-                focusOnTouch(event);
-                return true;
-            }
-
-        }
-
     }
 }

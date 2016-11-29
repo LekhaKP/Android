@@ -1,35 +1,102 @@
 <resources>
-    <string name="app_name">Training Project</string>
-    <string name="aiswarya_rai">Aiswarya Rai</string>
+    <string name="app_name">UnMask</string>
+    <string name="aiswarya_rai">Aishwarya Rai</string>
     <string name="anil_kapoor">Anil Kapoor</string>
     <string name="dharmendra">Dharmendra</string>
     <string name="madhuri_dixit">Madhuri Dixit</string>
     <string name="raj_kapoor">Raj Kapoor</string>
-    <string name="shah_rukh_khan">Shah Rukh Khan</string>
-    <string name="one">one</string>
-    <string name="two">two</string>
-    <string name="three">three</string>
-    <string name="four">four</string>
-    <string name="five">five</string>
-    <string name="six">six</string>
+    <string name="shah_rukh_khan">Shahrukh Khan</string>
+    <string name="amitabh_bachchan">Amitabh Bachchan</string>
+    <string name="arjun_kapoor">Arjun Kapoor</string>
+    <string name="dhanush">Dhanush</string>
+    <string name="kamal_hassan">Kamal Hassan</string>
+    <string name="mammootty">Mammootty</string>
+    <string name="manju_warrier">Manju Warrier</string>
+    <string name="deepika_padukone">Deepika Padukone</string>
+    <string name="dileep">Dilip</string>
+    <string name="mohanlal">Mohanlal</string>
+    <string name="ranbir_kapoor">Ranbir Kapoor</string>
+    <string name="ranveer_singh">Ranveer Singh</string>
+    <string name="salman">Salman Khan</string>
+    <string name="shah_rukh">Shah Rukh Khan</string>
+    <string name="one">1</string>
+    <string name="two">2</string>
+    <string name="three">3</string>
+    <string name="vijay">Vijay</string>
+    <string name="ajith">Ajith</string>
+    <string name="nivin_pauly">Nivin Pauly</string>
+    <string name="exit">Do you want to exit??</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="shahid">Shahid</string>
+    <string name="jayasurya">Jayasurya</string>
+    <string name="score_one">01</string>
+    <string name="score_two">02</string>
+    <string name="score_three">03</string>
+    <string name="score_four">04</string>
+    <string name="score_five">05</string>
+    <string name="dialog_one">Last chance !</string>
+    <string name="dialog_two">Try Again !</string>
+    <string name="dialog_three">Guess the celebrity !</string>
+    <string name="face_one">face_1stchance</string>
+    <string name="face_two">face_2ndchance</string>
+    <string name="face_three">face_3rdchance</string>
+    <string name="mike_three">microphone_2</string>
+    <string name="mike_two">microphone_3</string>
+    <string name="mike_one">microphone_1</string>
+    <string name="score_zero">00</string>
+    <string name="completed">You Have Completed This Mode</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string-array name="image_names">
+
+    <string-array name="easy_image_names">
         <item>@string/aiswarya_rai</item>
         <item>@string/anil_kapoor</item>
         <item>@string/dharmendra</item>
         <item>@string/madhuri_dixit</item>
         <item>@string/raj_kapoor</item>
         <item>@string/shah_rukh_khan</item>
+        <item>@string/amitabh_bachchan</item>
+        <item>@string/dileep</item>
+        <item>@string/vijay</item>
+        <item>@string/mammootty</item>
+        <item>@string/ajith</item>
+        <item>@string/manju_warrier</item>
+        <item>@string/deepika_padukone</item>
+        <item>@string/kamal_hassan</item>
+        <item>@string/mohanlal</item>
+
     </string-array>
-    <string-array name="level_names">
+
+    <string-array name="chances">
         <item>@string/one</item>
         <item>@string/two</item>
         <item>@string/three</item>
-        <item>@string/four</item>
-        <item>@string/five</item>
-        <item>@string/six</item>
     </string-array>
 
+    <string-array name="chance_dialogs">
+        <item>@string/dialog_one</item>
+        <item>@string/dialog_two</item>
+        <item>@string/dialog_three</item>
+    </string-array>
+
+    <string-array name="chance_faces">
+        <item>@string/face_three</item>
+        <item>@string/face_two</item>
+        <item>@string/face_one</item>
+    </string-array>
+
+    <string-array name="chance_mike">
+        <item>@string/mike_three</item>
+        <item>@string/mike_two</item>
+        <item>@string/mike_one</item>
+    </string-array>
+
+    <string-array name="show_score">
+        <item>@string/score_zero</item>
+        <item>@string/score_one</item>
+        <item>@string/score_two</item>
+        <item>@string/score_three</item>
+        <item>@string/score_four</item>
+        <item>@string/score_five</item>
+    </string-array>
 </resources>

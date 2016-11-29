@@ -7,23 +7,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.List;
-/**
- * Created by user on 13/10/16.
- */
 
 public class AnimalsAdapter extends RecyclerView.Adapter<AnimalsAdapter.MyViewHolder> {
     private List<Animals> animalsList;
-    private RecyclerView animalList;
-public class MyViewHolder extends RecyclerView.ViewHolder {
-    public TextView title;
+    public class MyViewHolder extends RecyclerView.ViewHolder {
+        public TextView title;
 
-    public MyViewHolder(View view) {
-        super(view);
-        title = (TextView) view.findViewById(R.id.title);
+        public MyViewHolder(View view) {
+            super(view);
+            title = (TextView) view.findViewById(R.id.title);
+
+        }
 
     }
-
-}
 
 
     public AnimalsAdapter(List<Animals> animalsList) {
@@ -48,12 +44,6 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     public int getItemCount() {
         return animalsList.size();
     }
-
-    /*public void addItem(String country) {
-        Animals animals = new Animals(country);
-        animalsList.add(animals);
-        notifyItemInserted(animalsList.size());
-    }*/
 
     public void removeItem(int position) {
         animalsList.remove(position);

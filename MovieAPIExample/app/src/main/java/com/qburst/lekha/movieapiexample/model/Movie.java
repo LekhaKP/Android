@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Movie implements Serializable {
+public class Movie implements Serializable{
     @SerializedName("poster_path")
     private String posterPath;
     @SerializedName("adult")
@@ -50,7 +50,6 @@ public class Movie implements Serializable {
         this.video = video;
         this.voteAverage = voteAverage;
     }
-
     public String getPosterPath() {
         return posterPath;
     }

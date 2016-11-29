@@ -1,0 +1,114 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#361C4B"
+    android:id="@+id/score_layout"
+    >
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/celebrity_image" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/success_dialog_area"
+        android:layout_below="@+id/celebrity_image"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_centerHorizontal="true">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/face_success"
+            android:id="@+id/success_state_face" />
+
+        <TextView
+            android:textColor="@android:color/black"
+            android:textSize="15dp"
+            android:textAlignment="center"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/success_state_text"
+            android:background="@mipmap/speech"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/success_state_face"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/success_dialog_area"
+        android:layout_centerHorizontal="true"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:background="@drawable/roundedbutton"
+        android:id="@+id/score_circle_view"
+        >
+        <TextView
+            android:text="Score"
+            android:textSize="15sp"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:id="@+id/textView" />
+        <TextView
+            android:fontFamily="sans-serif"
+            android:textStyle="bold"
+            android:textSize="30sp"
+            android:textColor="#fff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/score_view"
+            android:layout_below="@+id/textView"
+            android:layout_centerHorizontal="true"
+            />
+    </RelativeLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        android:id="@+id/next_game"
+        android:layout_below="@+id/score_circle_view"
+        android:background="@mipmap/rectangle2"
+        android:layout_centerHorizontal="true"
+        android:text="NEXT"
+        />
+
+
+
+    <!--<ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/score_view"/>
+
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_vertical_margin"
+        android:id="@+id/next_game"
+        android:background="#40e0d0"
+        android:text="NEXT GAME"
+        />
+
+    <Button
+        android:text="HOME"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/score_home_button"
+        android:background="#40e0d0" />-->
+
+
+</RelativeLayout>

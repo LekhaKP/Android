@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="image_ids">
+        <item>@drawable/aiswarya_roy</item>
+        <item>@drawable/anil_kapoor</item>
+        <item>@drawable/dharmendra</item>
+        <item>@drawable/madhuri_dixit</item>
+        <item>@drawable/raj_kapoor</item>
+        <item>@drawable/shah_rukh_khan</item>
+    </array>
+</resources>

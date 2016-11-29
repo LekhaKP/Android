@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">AsynchronousTaskExample</string>
+    <string name="initial_time">--:--</string>
+</resources>

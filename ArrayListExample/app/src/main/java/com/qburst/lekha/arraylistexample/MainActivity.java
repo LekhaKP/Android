@@ -39,34 +39,33 @@ import java.util.List;
 import static com.qburst.lekha.arraylistexample.R.id.animalList;
 
 public class MainActivity extends AppCompatActivity {
-    Point p;
+    private Point p;
     private RecyclerView animalList;
     private List<Animals> animalsList;
     private AnimalsAdapter mAdapter;
-    RecyclerView.LayoutManager mLayoutManager;
+    private RecyclerView.LayoutManager mLayoutManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Get the reference of ListViewAnimals
+
         animalList=(RecyclerView) this.findViewById(R.id.animalList);
         animalsList  = new ArrayList<>();
         mAdapter = new AnimalsAdapter(animalsList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         animalList.setLayoutManager(mLayoutManager);
         animalList.setItemAnimator(new DefaultItemAnimator());
-        // Set The Adapter
         animalList.setAdapter(mAdapter);
         getAnimalNames();
         animalList.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), animalList, new ClickListener() {
-
-            public void onClick(View view, final int position) {
+            @Override
+            public void onClick(View view, int position) {
 
             }
 
+            @Override
             public void onLongClick(View view, final int position) {
                 Animals animal = animalsList.get(position);
-                // Toast.makeText(getApplicationContext(), animal.getTitle() + " is selected!", Toast.LENGTH_SHORT).show();
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle("Delete entry")
                         .setMessage("Are you sure you want to delete "+ animal.getTitle()+"?")
@@ -79,30 +78,44 @@ public class MainActivity extends AppCompatActivity {
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 // do nothing
-
                             }
                         })
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             }
         }));
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_action_bar,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.add_animal) {
+            p = new Point();
+            DisplayMetrics displaymetrics = new DisplayMetrics();
+            (this).getWindowManager()
+                    .getDefaultDisplay()
+                    .getMetrics(displaymetrics);
+            p.x = displaymetrics.widthPixels ;
+            p.y =displaymetrics.heightPixels ;
+            showAddPopUp(this,p);
+            return true;
 
 
         }
-
-
-
-
-
-
-
+        return super.onOptionsItemSelected(item);
+    }
 
     void getAnimalNames()
     {
         Animals animals = new Animals("DOG");
         animalsList.add(animals);
-
         animals = new Animals("CAT");
         animalsList.add(animals);
         animals = new Animals("HORSE");
@@ -127,52 +140,30 @@ public class MainActivity extends AppCompatActivity {
         animalsList.add(animals);
         animals = new Animals("GOAT");
         animalsList.add(animals);
-
         mAdapter.notifyDataSetChanged();
-        Collections.sort(animalsList, new Comparator<Animals>() {
+        sortAnimalList(animalsList);
+    }
+
+    void sortAnimalList(List<Animals> sort_animal) {
+        Collections.sort(sort_animal, new Comparator<Animals>() {
             public int compare(Animals v1, Animals v2) {
                 return v1.getTitle().compareTo(v2.getTitle());
             }
         });
-
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_action_bar,menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
 
-        if (id == R.id.add_animal) {
-            p = new Point();
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            (this).getWindowManager()
-                    .getDefaultDisplay()
-                    .getMetrics(displaymetrics);
-            p.x = displaymetrics.widthPixels ;
-            p.y =displaymetrics.heightPixels ;
-            showAddPopUp(this,p);
-            return true;
-
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
     public void showAddPopUp(final Activity context, final Point p) {
+        LinearLayout viewGroup = (LinearLayout) MainActivity.this.findViewById(R.id.popup);
+        LayoutInflater layoutInflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View layout = layoutInflater.inflate(R.layout.add_list_item, viewGroup);
+
         DisplayMetrics displaymetrics = new DisplayMetrics();
         (this).getWindowManager()
                 .getDefaultDisplay()
                 .getMetrics(displaymetrics);
         int popupWidth = 80 * displaymetrics.widthPixels / 100;
         int popupHeight= 20 * displaymetrics.heightPixels / 100;
-
-        LinearLayout viewGroup = (LinearLayout) MainActivity.this.findViewById(R.id.popup);
-        LayoutInflater layoutInflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View layout = layoutInflater.inflate(R.layout.add_list_item, viewGroup);
         // Creating the PopupWindow
         final PopupWindow popup = new PopupWindow(MainActivity.this);
         popup.setContentView(layout);
@@ -180,7 +171,6 @@ public class MainActivity extends AppCompatActivity {
         popup.setHeight(popupHeight);
         popup.setFocusable(true);
         layout.setBackgroundColor(Color.WHITE);
-        // Displaying the popup at the specified location, + offsets.
         popup.showAtLocation(layout, Gravity.NO_GRAVITY, p.x/2 - popupWidth/2, p.y/2 - popupHeight/2 );
 
         final EditText animal_name = (EditText)layout.findViewById(R.id.animal);
@@ -190,16 +180,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 final Animals animals = new Animals(animal_name.getText().toString());
-
-
                 animalsList.add(animals);
                 mAdapter.notifyItemInserted(animalsList.size() - 1);
-                Collections.sort(animalsList, new Comparator<Animals>() {
-                    public int compare(Animals animals1, Animals animals2) {
-                        return animals1.getTitle().compareTo(animals2.getTitle());
-                    }
-                });
-
+                sortAnimalList(animalsList);
                 mLayoutManager = new LinearLayoutManager(getApplicationContext());
                 animalList.setLayoutManager(mLayoutManager);
                 popup.dismiss();
